@@ -124,3 +124,60 @@ const PERFORMANCES = [
   { nageur: "luka", date: "2026-11-15", epreuve: "100 NL",       temps: "1:21.67", points: 387,  bassin: 25, lieu: "LANEUVEVILLE-DEVANT-NANCY", niveau: "DEP" },
   { nageur: "luka", date: "2026-11-15", epreuve: "50 Dos",       temps: "41.41",   points: 465,  bassin: 25, lieu: "LANEUVEVILLE-DEVANT-NANCY", niveau: "DEP" },
 ];
+
+
+// =====================================================================
+//  GRILLE DE QUALIFICATION — DÉPARTEMENTAUX BENJAMINS
+// =====================================================================
+//  Reprise de l'onglet « Temps qualif Departementaux » (colonne Benjamin).
+//  Une épreuve est qualifiée si le meilleur temps est inférieur ou égal
+//  au temps de la grille. Pour une nouvelle saison, il suffit de
+//  remplacer les temps ci-dessous.
+// =====================================================================
+
+const GRILLE_DEPARTEMENTAUX = {
+  nom: "Départementaux benjamins",
+  temps: {
+    "50 NL":        "38.99",
+    "100 NL":       "1:23.60",
+    "200 NL":       "2:57.16",
+    "400 NL":       "6:09.12",
+    "800 NL":       "11:10.67",
+    "1500 NL":      "21:27.28",
+    "50 Dos":       "44.67",
+    "100 Dos":      "1:34.58",
+    "200 Dos":      "3:18.75",
+    "50 Brasse":    "49.25",
+    "100 Brasse":   "1:45.25",
+    "200 Brasse":   "3:39.94",
+    "50 Papillon":  "41.33",
+    "100 Papillon": "1:33.53",
+    "200 Papillon": "3:17.68",
+    "100 4 Nages":  "1:33.95",
+    "200 4 Nages":  "3:17.64",
+    "400 4 Nages":  "6:50.81",
+  }
+};
+
+// =====================================================================
+//  WEBCONFRONTATION BENJAMIN
+// =====================================================================
+//  Reprise de l'onglet « Webconfrontation Benjamin » : somme des points
+//  FFN du meilleur temps de chaque épreuve retenue.
+//  « parmi » : liste des épreuves possibles pour le critère.
+//  « rang »  : 1 = la meilleure, 2 = la deuxième meilleure (épreuve
+//              différente de la première), etc.
+// =====================================================================
+
+const WEBCONFRONTATION = {
+  nom: "Webconfrontation benjamin",
+  objectif: 2400,
+  criteres: [
+    { libelle: "Meilleur 50 m n°1", parmi: ["50 NL", "50 Dos", "50 Brasse", "50 Papillon"], rang: 1 },
+    { libelle: "Meilleur 50 m n°2", parmi: ["50 NL", "50 Dos", "50 Brasse", "50 Papillon"], rang: 2 },
+    { libelle: "Meilleur 100 m",    parmi: ["100 NL", "100 Dos", "100 Brasse", "100 Papillon"], rang: 1 },
+    { libelle: "200 4 Nages",       parmi: ["200 4 Nages"], rang: 1 },
+    { libelle: "200 NL",            parmi: ["200 NL"], rang: 1 },
+    { libelle: "400 NL",            parmi: ["400 NL"], rang: 1 },
+  ]
+};

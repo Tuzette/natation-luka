@@ -145,6 +145,25 @@ tbody tr:last-child td { border-bottom: 0; }
 .compet table tr:last-child td { border-bottom: 0; }
 .vide-msg { color: var(--encre-douce); padding: 1rem 0; }
 
+
+/* Qualification départementaux */
+.qualif-resume { display: flex; gap: 1.5rem 2.5rem; flex-wrap: wrap; align-items: baseline; margin-bottom: 1rem; }
+.qualif-resume b { font-family: var(--chiffre); font-size: 2.6rem; line-height: 1; color: var(--bassin); }
+.qualif-resume span { color: var(--encre-douce); }
+td.ecart { font-family: var(--chiffre); font-variant-numeric: tabular-nums; font-size: 1.05rem; }
+td.ecart.ok { color: var(--encre-douce); }
+td.ecart.ko { color: var(--corde); font-weight: 600; }
+tr.non-nage td { color: var(--encre-douce); }
+.etat { font-size: .85rem; font-weight: 600; padding: .1rem .5rem; border-radius: 3px; white-space: nowrap; }
+.etat.ok { background: var(--record); color: #1f1500; }
+.etat.ko { border: 1px solid var(--corde); color: var(--corde); }
+.etat.vide { border: 1px solid var(--ligne); color: var(--encre-douce); }
+
+/* Webconfrontation */
+.jauge { height: 14px; border-radius: 7px; background: var(--carrelage); border: 1px solid var(--ligne); overflow: hidden; margin: .4rem 0 1.25rem; max-width: 640px; position: relative; }
+.jauge i { display: block; height: 100%; background: var(--bassin-2); }
+.jauge i.ok { background: var(--record); }
+tfoot td, tfoot th { font-family: var(--chiffre); font-size: 1.2rem; font-weight: 700; border-top: 2px solid var(--encre); border-bottom: 0; }
 footer { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; color: var(--encre-douce); font-size: .85rem; }
 
 @media (max-width: 640px) {
@@ -166,6 +185,8 @@ footer { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; color:
     </label>
     <nav aria-label="Sections">
       <a href="#records">Records</a>
+      <a href="#qualif">Qualif dép.</a>
+      <a href="#webconf">Webconf.</a>
       <a href="#progression">Progression</a>
       <a href="#ages">Par âge</a>
       <a href="#historique">Historique</a>
@@ -184,6 +205,22 @@ footer { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; color:
       <div class="bascule" role="group" aria-label="Bassin" id="basculeRecords"></div>
     </div>
     <div id="grilleRecords" class="records"></div>
+  </section>
+
+
+  <section id="qualif">
+    <h2 id="qualifTitre">Qualification aux départementaux benjamins</h2>
+    <p class="intro">Chaque épreuve est qualifiée quand le meilleur temps est inférieur ou égal au temps de la grille. L’écart indique ce qu’il reste à gagner, ou l’avance prise.</p>
+    <div id="qualifResume" class="qualif-resume"></div>
+    <div class="defile" id="tableQualif"></div>
+  </section>
+
+  <section id="webconf">
+    <h2>Webconfrontation benjamin</h2>
+    <p class="intro">Total des points FFN sur les épreuves retenues : les deux meilleurs 50 m, le meilleur 100 m (hors 4 nages), le 200 4 nages, le 200 NL et le 400 NL. Pour chaque épreuve, ce sont les points du meilleur temps qui comptent.</p>
+    <div id="webconfResume" class="qualif-resume"></div>
+    <div id="webconfJauge"></div>
+    <div class="defile" id="tableWebconf"></div>
   </section>
 
   <section id="progression">
@@ -356,6 +393,65 @@ footer { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; color:
     }).join("");
   }
 
+
+  // ---------- Qualification départementaux benjamins ----------
+  function rendreQualif(liste) {
+    const g = (typeof GRILLE_DEPARTEMENTAUX !== "undefined" ? GRILLE_DEPARTEMENTAUX : null);
+    if (!g || !g.temps) { $("qualif").style.display = "none"; return; }
+    $("qualif").style.display = "";
+    $("qualifTitre").textContent = "Qualification aux " + (g.nom || "départementaux").replace(/^./, (c) => c.toLowerCase());
+    const eps = Object.keys(g.temps).sort((a, b) => ordreEpreuve(a) - ordreEpreuve(b));
+    let ok = 0, nages = 0;
+    const lignes = eps.map((ep) => {
+      const ref = enSecondes(g.temps[ep]);
+      const courses = liste.filter((p) => p.epreuve === ep);
+      if (!courses.length) return `<tr class="non-nage"><th scope="row">${esc(ep)}</th><td>–</td><td class="t">${enTemps(ref)}</td><td></td><td><span class="etat vide">Pas encore nagé</span></td></tr>`;
+      nages++;
+      const best = courses.reduce((a, b) => (b.sec < a.sec ? b : a));
+      const ecart = Math.round((best.sec - ref) * 100) / 100;
+      const qualifie = ecart <= 0;
+      if (qualifie) ok++;
+      return `<tr><th scope="row">${esc(ep)}</th>
+        <td class="t">${enTemps(best.sec)}<span class="sous">${dateCourte(best.date)}${best.bassin === 50 ? " · bassin 50 m" : ""}</span></td>
+        <td class="t">${enTemps(ref)}</td>
+        <td class="ecart ${qualifie ? "ok" : "ko"}">${qualifie ? "−" + Math.abs(ecart).toFixed(2) + " s d’avance" : "+" + ecart.toFixed(2) + " s à gagner"}</td>
+        <td><span class="etat ${qualifie ? "ok" : "ko"}">${qualifie ? "Qualifié" : "Pas encore"}</span></td></tr>`;
+    }).join("");
+    $("qualifResume").innerHTML = `<div><b>${ok}</b> <span>épreuve${ok > 1 ? "s" : ""} qualifiée${ok > 1 ? "s" : ""} sur ${nages} nagée${nages > 1 ? "s" : ""}</span></div>`;
+    $("tableQualif").innerHTML = `<table><thead><tr><th>Épreuve</th><th>Meilleur temps</th><th>Temps qualif</th><th>Écart</th><th>Statut</th></tr></thead><tbody>${lignes}</tbody></table>`;
+  }
+
+  // ---------- Webconfrontation benjamin ----------
+  function rendreWebconf(liste) {
+    const w = (typeof WEBCONFRONTATION !== "undefined" ? WEBCONFRONTATION : null);
+    if (!w || !w.criteres) { $("webconf").style.display = "none"; return; }
+    $("webconf").style.display = "";
+    // Meilleur temps de chaque épreuve (avec ses points)
+    const records = {};
+    for (const p of liste) if (!records[p.epreuve] || p.sec < records[p.epreuve].sec) records[p.epreuve] = p;
+    let total = 0, manques = 0;
+    const lignes = w.criteres.map((c) => {
+      const candidats = c.parmi.map((e) => records[e]).filter(Boolean)
+        .sort((a, b) => (b.points ?? -1) - (a.points ?? -1));
+      const r = candidats[(c.rang || 1) - 1];
+      if (!r) { manques++; return `<tr class="non-nage"><th scope="row">${esc(c.libelle)}</th><td>–</td><td>–</td><td class="t">0</td></tr>`; }
+      if (r.points == null) manques++;
+      total += r.points || 0;
+      return `<tr><th scope="row">${esc(c.libelle)}</th><td>${esc(r.epreuve)}</td>
+        <td class="t">${enTemps(r.sec)}<span class="sous">${dateCourte(r.date)} · ${esc(lieuJoli(r.lieu))}</span></td>
+        <td class="t">${r.points != null ? r.points : "? <span class='sous'>points non saisis</span>"}</td></tr>`;
+    }).join("");
+    const obj = Number(w.objectif) || 0;
+    const atteint = obj && total >= obj;
+    const ecart = total - obj;
+    $("webconfResume").innerHTML = `<div><b>${total}</b> <span>points</span></div>` +
+      (obj ? `<div><span>Objectif ${obj} pts · </span><span class="etat ${atteint ? "ok" : "ko"}">${atteint ? "Atteint, +" + ecart + " pts" : "Il manque " + (-ecart) + " pts"}</span></div>` : "") +
+      (manques ? `<div><span>${manques} critère${manques > 1 ? "s" : ""} sans points</span></div>` : "");
+    $("webconfJauge").innerHTML = obj ? `<div class="jauge" role="img" aria-label="${total} points sur ${obj}"><i class="${atteint ? "ok" : ""}" style="width:${Math.min(100, total / obj * 100).toFixed(1)}%"></i></div>` : "";
+    $("tableWebconf").innerHTML = `<table><thead><tr><th>Critère</th><th>Épreuve retenue</th><th>Temps</th><th>Points</th></tr></thead><tbody>${lignes}</tbody>
+      <tfoot><tr><th scope="row" colspan="3">Total</th><td>${total}</td></tr></tfoot></table>`;
+  }
+
   // ---------- Progression ----------
   function rendreProgressionControles(liste) {
     const eps = [...new Set(liste.map((p) => p.epreuve))].sort((a, b) => ordreEpreuve(a) - ordreEpreuve(b));
@@ -488,6 +584,8 @@ footer { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; color:
     const liste = perfsDu(n.id);
     rendrePanneau(n, liste);
     rendreRecords(liste);
+    rendreQualif(liste);
+    rendreWebconf(liste);
     rendreProgressionControles(liste);
     rendreAges(liste);
     rendreFiltresHisto(liste);
