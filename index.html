@@ -217,7 +217,7 @@ footer { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; color:
 
   <section id="webconf">
     <h2>Webconfrontation benjamin</h2>
-    <p class="intro">Total des points FFN sur les épreuves retenues : les deux meilleurs 50 m, le meilleur 100 m (hors 4 nages), le 200 4 nages, le 200 NL et le 400 NL. Pour chaque épreuve, ce sont les points du meilleur temps qui comptent.</p>
+    <p class="intro">Total des points FFN sur les épreuves retenues : les deux meilleurs 50 m, le meilleur 100 m (hors 4 nages), le 200 4 nages, le 200 NL et le 400 NL. Pour chaque épreuve, ce sont les points du meilleur temps nagé <span id="webconfPeriode">pendant la période de qualification</span> qui comptent.</p>
     <div id="webconfResume" class="qualif-resume"></div>
     <div id="webconfJauge"></div>
     <div class="defile" id="tableWebconf"></div>
@@ -426,15 +426,18 @@ footer { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; color:
     const w = (typeof WEBCONFRONTATION !== "undefined" ? WEBCONFRONTATION : null);
     if (!w || !w.criteres) { $("webconf").style.display = "none"; return; }
     $("webconf").style.display = "";
-    // Meilleur temps de chaque épreuve (avec ses points)
+    // Seules les courses de la période de qualification comptent
+    const dansPeriode = liste.filter((p) => (!w.debut || p.date >= w.debut) && (!w.fin || p.date <= w.fin));
+    $("webconfPeriode").textContent = w.debut && w.fin ? "entre le " + dateCourte(w.debut) + " et le " + dateCourte(w.fin) : "pendant la période de qualification";
+    // Meilleur temps de chaque épreuve sur la période (avec ses points)
     const records = {};
-    for (const p of liste) if (!records[p.epreuve] || p.sec < records[p.epreuve].sec) records[p.epreuve] = p;
+    for (const p of dansPeriode) if (!records[p.epreuve] || p.sec < records[p.epreuve].sec) records[p.epreuve] = p;
     let total = 0, manques = 0;
     const lignes = w.criteres.map((c) => {
       const candidats = c.parmi.map((e) => records[e]).filter(Boolean)
         .sort((a, b) => (b.points ?? -1) - (a.points ?? -1));
       const r = candidats[(c.rang || 1) - 1];
-      if (!r) { manques++; return `<tr class="non-nage"><th scope="row">${esc(c.libelle)}</th><td>–</td><td>–</td><td class="t">0</td></tr>`; }
+      if (!r) { manques++; return `<tr class="non-nage"><th scope="row">${esc(c.libelle)}</th><td>Pas encore nagé sur la période</td><td>–</td><td class="t">0</td></tr>`; }
       if (r.points == null) manques++;
       total += r.points || 0;
       return `<tr><th scope="row">${esc(c.libelle)}</th><td>${esc(r.epreuve)}</td>

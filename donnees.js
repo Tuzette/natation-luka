@@ -167,11 +167,15 @@ const GRILLE_DEPARTEMENTAUX = {
 //  « parmi » : liste des épreuves possibles pour le critère.
 //  « rang »  : 1 = la meilleure, 2 = la deuxième meilleure (épreuve
 //              différente de la première), etc.
+//  « debut » / « fin » : seules les courses nagées entre ces deux dates
+//              (incluses) sont prises en compte. À changer chaque saison.
 // =====================================================================
 
 const WEBCONFRONTATION = {
   nom: "Webconfrontation benjamin",
   objectif: 2400,
+  debut: "2026-09-01",
+  fin:   "2027-06-01",
   criteres: [
     { libelle: "Meilleur 50 m n°1", parmi: ["50 NL", "50 Dos", "50 Brasse", "50 Papillon"], rang: 1 },
     { libelle: "Meilleur 50 m n°2", parmi: ["50 NL", "50 Dos", "50 Brasse", "50 Papillon"], rang: 2 },
