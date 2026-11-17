@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
 <title>Suivi des temps de natation</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏊</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -173,6 +174,11 @@ tr.cliquable:hover td, tr.cliquable:hover th { background: var(--carrelage); }
 .club { display: block; font-size: .78rem; color: var(--encre-douce); font-weight: 400; }
 td.plus { color: var(--corde); font-family: var(--chiffre); }
 td.moins { color: var(--encre-douce); font-family: var(--chiffre); }
+/* Boutons de mise à jour */
+.maj { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: .75rem; }
+.maj a { display: inline-block; text-decoration: none; font-weight: 600; font-size: .95rem; padding: .55rem 1rem; border-radius: 6px; background: var(--bassin); color: var(--fond); }
+.maj a:hover { background: var(--bassin-2); }
+.maj p { flex-basis: 100%; margin: 0; }
 footer { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; color: var(--encre-douce); font-size: .85rem; }
 
 @media (max-width: 640px) {
@@ -196,8 +202,7 @@ footer { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; color:
       <a href="#records">Records</a>
       <a href="#qualif">Qualif dép.</a>
       <a href="#webconf">Webconf.</a>
-      <a href="#comparaison">Comparaison</a>
-      <a href="selection.html">Sélection U12</a>
+      <a href="#comparaison" id="lienComparaison">Comparaison</a>
       <a href="#progression">Progression</a>
       <a href="#ages">Par âge</a>
       <a href="#historique">Historique</a>
@@ -276,7 +281,7 @@ footer { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; color:
     <div id="listeHisto"></div>
   </section>
 </main>
-<footer id="pied"></footer>
+<footer><p id="pied"></p><div id="majBoutons" class="maj"></div></footer>
 
 <script src="donnees.js"></script>
 <script src="donnees-ffn.js" onerror="window.PERFORMANCES_FFN=[]"></script>
@@ -491,8 +496,8 @@ footer { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; color:
 
   // ---------- Comparaison avec les concurrents ----------
   function rendreComparaison(n) {
-    if (nageurs.length < 2) { $("comparaison").style.display = "none"; return; }
-    $("comparaison").style.display = "";
+    if (nageurs.length < 2) { $("comparaison").style.display = "none"; $("lienComparaison").style.display = "none"; return; }
+    $("comparaison").style.display = ""; $("lienComparaison").style.display = "";
     const bassins = bassinsDispo(perfs.filter((p) => p.nageur === n.id));
     if (!bassins.includes(etat.bassinComp)) etat.bassinComp = bassins[0] || 25;
     bascule($("basculeComp"), bassins.length ? bassins : [25], etat.bassinComp, (b) => { etat.bassinComp = b; rendreComparaison(n); });
@@ -682,6 +687,12 @@ footer { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; color:
     rendreHisto(liste);
     const derniere = liste.reduce((m, p) => (p.date > m ? p.date : m), "");
     $("pied").textContent = derniere ? "Données à jour au " + dateCourte(derniere) + ". Les records sont recalculés automatiquement à partir de donnees.js." : "";
+  }
+
+  // Boutons de mise à jour (définis dans donnees.js, absents du site de Luka)
+  if (typeof MISE_A_JOUR !== "undefined" && MISE_A_JOUR.length) {
+    $("majBoutons").innerHTML = MISE_A_JOUR.map((m) => `<a href="${esc(m.url)}" target="_blank" rel="noopener">↻ ${esc(m.libelle)}</a>`).join("") +
+      `<p>Ouvre GitHub : clique ensuite sur « Run workflow ». Les nouvelles courses apparaissent sur le site 2 à 3 minutes après.</p>`;
   }
 
   const sel = $("choixNageur");

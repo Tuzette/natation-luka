@@ -19,26 +19,12 @@
 //  Tout le reste (âge, catégorie, saison, records, progression) est calculé
 //  automatiquement par le site.
 //
-//  Les records des nageurs qui ont un numéro FFN (iuf) sont aussi récupérés
-//  automatiquement dans donnees-ffn.js : ne pas modifier ce fichier-là.
+//  Les courses de Luka sont aussi récupérées sur sa fiche FFN (bouton de
+//  mise à jour sur le site de suivi) dans donnees-ffn.js : ne pas modifier ce fichier-là.
 // =====================================================================
 
 const NAGEURS = [
-  // suivi: true = nageur affiché par défaut. iuf = numéro FFN (sert à la mise à jour automatique).
   { id: "luka", nom: "BISCEGLIE", prenom: "Luka", naissance: 2015, club: "USB Longwy Natation", iuf: 3703723, suivi: true },
-  // Concurrents
-  { id: "tocque", nom: "TOCQUE", prenom: "Jules", naissance: 2015, club: "US Toul", iuf: 4130890 },
-  { id: "poenar", nom: "POENAR", prenom: "Darian", naissance: 2015, club: "USB Longwy Natation", iuf: 4155095 },
-  { id: "meyer", nom: "MEYER", prenom: "Louis", naissance: 2015, club: "ASPTT Nancy", iuf: 3748723 },
-  { id: "kircher", nom: "KIRCHER", prenom: "Hugo", naissance: 2015, club: "CA Orne Lorraine Confluences", iuf: 4279887 },
-  { id: "ouhmich", nom: "OUHMICH", prenom: "Rayan", naissance: 2015, club: "NC Lunéville-Baccarat", iuf: 3171635 },
-  { id: "didot", nom: "DIDOT", prenom: "Loris", naissance: 2015, club: "NC Lunéville-Baccarat", iuf: 4281722 },
-  { id: "delawoevre", nom: "DELAWOEVRE", prenom: "Gabriel", naissance: 2015, club: "USB Longwy Natation", iuf: 3069643 },
-  { id: "helmlinger", nom: "HELMLINGER", prenom: "Vincent", naissance: 2015, club: "ASPTT Nancy", iuf: 3975784 },
-  { id: "gerard", nom: "GERARD", prenom: "Noe", naissance: 2015, club: "CA Orne Lorraine Confluences", iuf: 4294973 },
-  { id: "liez", nom: "LIEZ", prenom: "Arthur", naissance: 2015, club: "ASPTT Nancy", iuf: 3810411 },
-  { id: "doudoux", nom: "DOUDOUX PELLERIN", prenom: "Sacha", naissance: 2015, club: "ASPTT Nancy", iuf: 3965176 },
-  { id: "morville", nom: "MORVILLE", prenom: "Tom", naissance: 2015, club: "US Toul", iuf: 4041513 },
 ];
 
 const PERFORMANCES = [
@@ -199,26 +185,5 @@ const WEBCONFRONTATION = {
     { libelle: "200 4 Nages",       parmi: ["200 4 Nages"], rang: 1 },
     { libelle: "200 NL",            parmi: ["200 NL"], rang: 1 },
     { libelle: "400 NL",            parmi: ["400 NL"], rang: 1 },
-  ]
-};
-
-// =====================================================================
-//  SÉLECTION U12 BENJAMIN
-// =====================================================================
-//  Classement par cumul de points FFN (page selection.html).
-//  Pour chaque épreuve, ce sont les meilleurs points obtenus entre
-//  « debut » et « fin » (incluses) qui comptent, tous bassins confondus.
-//  fin: null = pas de date de fin.
-//  « rang » : 1 = la meilleure épreuve, 2 = la deuxième (épreuve différente).
-// =====================================================================
-
-const SELECTION_U12 = {
-  nom: "Sélection U12 benjamin",
-  debut: "2026-09-01",
-  fin: null,
-  criteres: [
-    { libelle: "Meilleur 100 m n°1", parmi: ["100 NL", "100 Dos", "100 Brasse", "100 Papillon"], rang: 1 },
-    { libelle: "Meilleur 100 m n°2", parmi: ["100 NL", "100 Dos", "100 Brasse", "100 Papillon"], rang: 2 },
-    { libelle: "200 4 Nages",        parmi: ["200 4 Nages"], rang: 1 },
   ]
 };
