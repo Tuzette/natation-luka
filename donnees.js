@@ -18,12 +18,27 @@
 //
 //  Tout le reste (âge, catégorie, saison, records, progression) est calculé
 //  automatiquement par le site.
+//
+//  Les records des nageurs qui ont un numéro FFN (iuf) sont aussi récupérés
+//  automatiquement dans donnees-ffn.js : ne pas modifier ce fichier-là.
 // =====================================================================
 
 const NAGEURS = [
-  { id: "luka", nom: "BISCEGLIE", prenom: "Luka", naissance: 2015, club: "USB Longwy Natation", suivi: true },
-  // Exemple pour plus tard (concurrent) :
-  // { id: "dupont-leo", nom: "DUPONT", prenom: "Léo", naissance: 2015, club: "SN Metz" },
+  // suivi: true = nageur affiché par défaut. iuf = numéro FFN (sert à la mise à jour automatique).
+  { id: "luka", nom: "BISCEGLIE", prenom: "Luka", naissance: 2015, club: "USB Longwy Natation", iuf: 3703723, suivi: true },
+  // Concurrents
+  { id: "tocque", nom: "TOCQUE", prenom: "Jules", naissance: 2015, club: "US Toul", iuf: 4130890 },
+  { id: "poenar", nom: "POENAR", prenom: "Darian", naissance: 2015, club: "USB Longwy Natation", iuf: 4155095 },
+  { id: "meyer", nom: "MEYER", prenom: "Louis", naissance: 2015, club: "ASPTT Nancy", iuf: 3748723 },
+  { id: "kircher", nom: "KIRCHER", prenom: "Hugo", naissance: 2015, club: "CA Orne Lorraine Confluences", iuf: 4279887 },
+  { id: "ouhmich", nom: "OUHMICH", prenom: "Rayan", naissance: 2015, club: "NC Lunéville-Baccarat", iuf: 3171635 },
+  { id: "didot", nom: "DIDOT", prenom: "Loris", naissance: 2015, club: "NC Lunéville-Baccarat", iuf: 4281722 },
+  { id: "delawoevre", nom: "DELAWOEVRE", prenom: "Gabriel", naissance: 2015, club: "USB Longwy Natation", iuf: 3069643 },
+  { id: "helmlinger", nom: "HELMLINGER", prenom: "Vincent", naissance: 2015, club: "ASPTT Nancy", iuf: 3975784 },
+  { id: "gerard", nom: "GERARD", prenom: "Noe", naissance: 2015, club: "CA Orne Lorraine Confluences", iuf: 4294973 },
+  { id: "liez", nom: "LIEZ", prenom: "Arthur", naissance: 2015, club: "ASPTT Nancy", iuf: 3810411 },
+  { id: "doudoux", nom: "DOUDOUX PELLERIN", prenom: "Sacha", naissance: 2015, club: "ASPTT Nancy", iuf: 3965176 },
+  { id: "morville", nom: "MORVILLE", prenom: "Tom", naissance: 2015, club: "US Toul", iuf: 4041513 },
 ];
 
 const PERFORMANCES = [
@@ -38,11 +53,11 @@ const PERFORMANCES = [
   { nageur: "luka", date: "2024-04-14", epreuve: "100 4 Nages",  temps: "2:06.98", points: 16,   bassin: 25, lieu: "LANEUVEVILLE-DEVANT-NANCY", niveau: "DEP" },
   { nageur: "luka", date: "2024-04-14", epreuve: "50 Brasse",    temps: "59.99",   points: 105,  bassin: 25, lieu: "LANEUVEVILLE-DEVANT-NANCY", niveau: "DEP" },
   { nageur: "luka", date: "2024-04-14", epreuve: "50 Papillon",  temps: "1:05.11", points: 1,    bassin: 25, lieu: "LANEUVEVILLE-DEVANT-NANCY", niveau: "DEP" },
-  { nageur: "luka", date: "2024-05-20", epreuve: "100 NL",       temps: "1:57.51", points: null, bassin: 50, lieu: "LUNEVILLE", niveau: "DEP" },
-  { nageur: "luka", date: "2024-05-20", epreuve: "50 Brasse",    temps: "1:00.30", points: null, bassin: 50, lieu: "LUNEVILLE", niveau: "DEP" },
-  { nageur: "luka", date: "2024-05-20", epreuve: "50 Dos",       temps: "1:04.57", points: null, bassin: 50, lieu: "LUNEVILLE", niveau: "DEP" },
-  { nageur: "luka", date: "2024-05-20", epreuve: "50 NL",        temps: "54.28",   points: null, bassin: 50, lieu: "LUNEVILLE", niveau: "DEP" },
-  { nageur: "luka", date: "2024-05-20", epreuve: "50 Papillon",  temps: "1:07.85", points: null, bassin: 50, lieu: "LUNEVILLE", niveau: "DEP" },
+  { nageur: "luka", date: "2024-05-20", epreuve: "100 NL",       temps: "1:57.51", points: 3, bassin: 50, lieu: "LUNEVILLE", niveau: "DEP" },
+  { nageur: "luka", date: "2024-05-20", epreuve: "50 Brasse",    temps: "1:00.30", points: 100, bassin: 50, lieu: "LUNEVILLE", niveau: "DEP" },
+  { nageur: "luka", date: "2024-05-20", epreuve: "50 Dos",       temps: "1:04.57", points: 2, bassin: 50, lieu: "LUNEVILLE", niveau: "DEP" },
+  { nageur: "luka", date: "2024-05-20", epreuve: "50 NL",        temps: "54.28",   points: 8, bassin: 50, lieu: "LUNEVILLE", niveau: "DEP" },
+  { nageur: "luka", date: "2024-05-20", epreuve: "50 Papillon",  temps: "1:07.85", points: 1, bassin: 50, lieu: "LUNEVILLE", niveau: "DEP" },
   { nageur: "luka", date: "2024-10-13", epreuve: "100 4 Nages",  temps: "1:59.24", points: 56,   bassin: 25, lieu: "TOUL", niveau: "DEP" },
   { nageur: "luka", date: "2024-10-13", epreuve: "50 Brasse",    temps: "59.79",   points: 108,  bassin: 25, lieu: "TOUL", niveau: "DEP" },
   { nageur: "luka", date: "2024-10-13", epreuve: "50 NL",        temps: "47.39",   points: 100,  bassin: 25, lieu: "TOUL", niveau: "DEP" },
@@ -184,5 +199,26 @@ const WEBCONFRONTATION = {
     { libelle: "200 4 Nages",       parmi: ["200 4 Nages"], rang: 1 },
     { libelle: "200 NL",            parmi: ["200 NL"], rang: 1 },
     { libelle: "400 NL",            parmi: ["400 NL"], rang: 1 },
+  ]
+};
+
+// =====================================================================
+//  SÉLECTION U12 BENJAMIN
+// =====================================================================
+//  Classement par cumul de points FFN (page selection.html).
+//  Pour chaque épreuve, ce sont les meilleurs points obtenus entre
+//  « debut » et « fin » (incluses) qui comptent, tous bassins confondus.
+//  fin: null = pas de date de fin.
+//  « rang » : 1 = la meilleure épreuve, 2 = la deuxième (épreuve différente).
+// =====================================================================
+
+const SELECTION_U12 = {
+  nom: "Sélection U12 benjamin",
+  debut: "2026-09-01",
+  fin: null,
+  criteres: [
+    { libelle: "Meilleur 100 m n°1", parmi: ["100 NL", "100 Dos", "100 Brasse", "100 Papillon"], rang: 1 },
+    { libelle: "Meilleur 100 m n°2", parmi: ["100 NL", "100 Dos", "100 Brasse", "100 Papillon"], rang: 2 },
+    { libelle: "200 4 Nages",        parmi: ["200 4 Nages"], rang: 1 },
   ]
 };

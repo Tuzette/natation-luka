@@ -164,6 +164,15 @@ tr.non-nage td { color: var(--encre-douce); }
 .jauge i { display: block; height: 100%; background: var(--bassin-2); }
 .jauge i.ok { background: var(--record); }
 tfoot td, tfoot th { font-family: var(--chiffre); font-size: 1.2rem; font-weight: 700; border-top: 2px solid var(--encre); border-bottom: 0; }
+/* Comparaison */
+.sous-titre { font-family: var(--chiffre); font-weight: 600; font-size: 1.3rem; margin: 0 0 .6rem; }
+tr.moi td, tr.moi th { background: var(--record-fond); font-weight: 600; }
+tr.cliquable { cursor: pointer; }
+tr.cliquable:hover td, tr.cliquable:hover th { background: var(--carrelage); }
+.rang { font-family: var(--chiffre); font-size: 1.15rem; font-weight: 700; }
+.club { display: block; font-size: .78rem; color: var(--encre-douce); font-weight: 400; }
+td.plus { color: var(--corde); font-family: var(--chiffre); }
+td.moins { color: var(--encre-douce); font-family: var(--chiffre); }
 footer { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; color: var(--encre-douce); font-size: .85rem; }
 
 @media (max-width: 640px) {
@@ -187,6 +196,8 @@ footer { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; color:
       <a href="#records">Records</a>
       <a href="#qualif">Qualif dép.</a>
       <a href="#webconf">Webconf.</a>
+      <a href="#comparaison">Comparaison</a>
+      <a href="selection.html">Sélection U12</a>
       <a href="#progression">Progression</a>
       <a href="#ages">Par âge</a>
       <a href="#historique">Historique</a>
@@ -223,6 +234,18 @@ footer { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; color:
     <div class="defile" id="tableWebconf"></div>
   </section>
 
+  <section id="comparaison">
+    <h2>Comparaison avec les concurrents</h2>
+    <p class="intro">Classement des nageurs suivis sur chaque épreuve, à partir de leur meilleur temps. Les temps des concurrents viennent de leur fiche FFN (records personnels).</p>
+    <div class="controles"><div class="bascule" role="group" aria-label="Bassin" id="basculeComp"></div></div>
+    <h3 class="sous-titre" id="compResumeTitre"></h3>
+    <div class="defile" id="compResume"></div>
+    <div class="controles" style="margin-top:2rem">
+      <label>Détail de l’épreuve <select id="compEpreuve"></select></label>
+    </div>
+    <div class="defile" id="compDetail"></div>
+  </section>
+
   <section id="progression">
     <h2>Progression</h2>
     <p class="intro">Chaque point est une course. Plus le point est haut, plus le temps est rapide. Les points dorés sont des records personnels.</p>
@@ -256,6 +279,7 @@ footer { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; color:
 <footer id="pied"></footer>
 
 <script src="donnees.js"></script>
+<script src="donnees-ffn.js" onerror="window.PERFORMANCES_FFN=[]"></script>
 <script>
 (function () {
   "use strict";
@@ -265,7 +289,7 @@ footer { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; color:
   const DISTANCES = { "NL": [50, 100, 200, 400, 800, 1500], "Dos": [50, 100, 200], "Brasse": [50, 100, 200], "Papillon": [50, 100, 200], "4 Nages": [100, 200, 400] };
   const MOIS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
 
-  const etat = { nageur: null, bassinRecords: 25, bassinProg: 25, bassinAges: 25, epreuve: null };
+  const etat = { bassinComp: 25, compEp: null, nageur: null, bassinRecords: 25, bassinProg: 25, bassinAges: 25, epreuve: null };
 
   // ---------- Outils ----------
   const $ = (id) => document.getElementById(id);
@@ -288,7 +312,17 @@ footer { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; color:
 
   // ---------- Préparation des données ----------
   const nageurs = (typeof NAGEURS !== "undefined" ? NAGEURS : []);
-  const brutes = (typeof PERFORMANCES !== "undefined" ? PERFORMANCES : []);
+  // Fusion des courses saisies à la main et de celles récupérées sur la FFN (sans doublons)
+  const brutes = (() => {
+    const manuel = (typeof PERFORMANCES !== "undefined" ? PERFORMANCES : []);
+    const ffn = (typeof PERFORMANCES_FFN !== "undefined" ? PERFORMANCES_FFN : []);
+    const vus = new Set(), res = [];
+    for (const p of [...manuel, ...ffn]) {
+      const cle = [p.nageur, p.epreuve, Number(p.bassin) || 25, p.date, enSecondes(p.temps).toFixed(2)].join("|");
+      if (!vus.has(cle)) { vus.add(cle); res.push(p); }
+    }
+    return res;
+  })();
   const perfs = brutes.map((p, i) => {
     const n = nageurs.find((x) => x.id === p.nageur);
     const sec = enSecondes(p.temps);
@@ -455,6 +489,58 @@ footer { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; color:
       <tfoot><tr><th scope="row" colspan="3">Total</th><td>${total}</td></tr></tfoot></table>`;
   }
 
+  // ---------- Comparaison avec les concurrents ----------
+  function rendreComparaison(n) {
+    if (nageurs.length < 2) { $("comparaison").style.display = "none"; return; }
+    $("comparaison").style.display = "";
+    const bassins = bassinsDispo(perfs.filter((p) => p.nageur === n.id));
+    if (!bassins.includes(etat.bassinComp)) etat.bassinComp = bassins[0] || 25;
+    bascule($("basculeComp"), bassins.length ? bassins : [25], etat.bassinComp, (b) => { etat.bassinComp = b; rendreComparaison(n); });
+    const dans = perfs.filter((p) => p.bassin === etat.bassinComp);
+    // Meilleur temps de chaque nageur par épreuve
+    const best = {};
+    for (const p of dans) { const k = p.epreuve + "|" + p.nageur; if (!best[k] || p.sec < best[k].sec) best[k] = p; }
+    const classement = (ep) => Object.values(best).filter((p) => p.epreuve === ep).sort((a, b) => a.sec - b.sec);
+    const nomDe = (id) => { const x = nageurs.find((y) => y.id === id); return x ? x.prenom + " " + x.nom : id; };
+    const clubDe = (id) => (nageurs.find((y) => y.id === id) || {}).club || "";
+    const eps = [...new Set(dans.map((p) => p.epreuve))].sort((a, b) => ordreEpreuve(a) - ordreEpreuve(b));
+
+    // Résumé : position du nageur affiché sur chaque épreuve
+    $("compResumeTitre").textContent = "Position de " + n.prenom + " sur chaque épreuve";
+    const lignesR = eps.map((ep) => {
+      const cl = classement(ep); const i = cl.findIndex((p) => p.nageur === n.id);
+      if (i < 0) return "";
+      const moi = cl[i], premier = cl[0];
+      const ecart = moi.sec - premier.sec;
+      return `<tr class="cliquable" data-ep="${esc(ep)}"><th scope="row">${esc(ep)}</th><td><span class="rang">${i + 1}<sup>${i ? "e" : "er"}</sup></span> / ${cl.length}</td>
+        <td class="t">${enTemps(moi.sec)}</td>
+        <td>${i ? esc(nomDe(premier.nageur)) + " · <b class='num'>" + enTemps(premier.sec) + "</b>" : "—"}</td>
+        <td class="${i ? "plus" : "moins"}">${i ? "+" + ecart.toFixed(2) + " s" : "en tête"}</td></tr>`;
+    }).join("");
+    $("compResume").innerHTML = lignesR
+      ? `<table><thead><tr><th>Épreuve</th><th>Rang</th><th>Son temps</th><th>1er du groupe</th><th>Écart au 1er</th></tr></thead><tbody>${lignesR}</tbody></table>`
+      : `<p class="vide-msg" style="padding:1rem">${esc(n.prenom)} n’a pas de temps dans ce bassin.</p>`;
+    $("compResume").querySelectorAll("tr.cliquable").forEach((tr) => tr.onclick = () => { etat.compEp = tr.dataset.ep; $("compEpreuve").value = tr.dataset.ep; detail(); $("compEpreuve").scrollIntoView({ block: "center" }); });
+
+    // Détail d'une épreuve : classement complet
+    if (!eps.includes(etat.compEp)) etat.compEp = eps.find((e) => best[e + "|" + n.id]) || eps[0];
+    $("compEpreuve").innerHTML = eps.map((e) => `<option${e === etat.compEp ? " selected" : ""}>${esc(e)}</option>`).join("");
+    $("compEpreuve").onchange = (e) => { etat.compEp = e.target.value; detail(); };
+    function detail() {
+      const cl = classement(etat.compEp);
+      const moi = cl.find((p) => p.nageur === n.id);
+      $("compDetail").innerHTML = `<table><thead><tr><th>Rang</th><th>Nageur</th><th>Temps</th><th>Écart avec ${esc(n.prenom)}</th><th>Points</th><th>Date</th></tr></thead><tbody>${cl.map((p, i) => {
+        const e = moi ? p.sec - moi.sec : null;
+        const ecartTxt = !moi ? "–" : p.nageur === n.id ? "" : (e < 0 ? "−" + Math.abs(e).toFixed(2) + " s (devant)" : "+" + e.toFixed(2) + " s (derrière)");
+        return `<tr class="${p.nageur === n.id ? "moi" : ""}"><td class="rang">${i + 1}</td>
+          <th scope="row"><a href="#${esc(p.nageur)}">${esc(nomDe(p.nageur))}</a><span class="club">${esc(clubDe(p.nageur))}</span></th>
+          <td class="t">${enTemps(p.sec)}</td><td class="${e != null && e < 0 ? "plus" : "moins"}">${ecartTxt}</td>
+          <td>${p.points != null ? p.points + " pts" : ""}</td><td>${dateCourte(p.date)} · ${esc(lieuJoli(p.lieu))}</td></tr>`;
+      }).join("")}</tbody></table>`;
+    }
+    if (etat.compEp) detail(); else $("compDetail").innerHTML = "";
+  }
+
   // ---------- Progression ----------
   function rendreProgressionControles(liste) {
     const eps = [...new Set(liste.map((p) => p.epreuve))].sort((a, b) => ordreEpreuve(a) - ordreEpreuve(b));
@@ -589,6 +675,7 @@ footer { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; color:
     rendreRecords(liste);
     rendreQualif(liste);
     rendreWebconf(liste);
+    rendreComparaison(n);
     rendreProgressionControles(liste);
     rendreAges(liste);
     rendreFiltresHisto(liste);
@@ -608,7 +695,7 @@ footer { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; color:
   sel.value = initial;
   afficher(initial);
   // Liens #records, #progression… : ne pas les confondre avec un nageur
-  window.addEventListener("hashchange", () => { const h = location.hash.slice(1); if (nageurs.some((n) => n.id === h)) { sel.value = h; afficher(h); } });
+  window.addEventListener("hashchange", () => { const h = location.hash.slice(1); if (nageurs.some((n) => n.id === h)) { sel.value = h; afficher(h); window.scrollTo(0, 0); } });
 })();
 </script>
 </body>
