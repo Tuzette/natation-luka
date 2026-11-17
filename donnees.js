@@ -123,6 +123,7 @@ const PERFORMANCES = [
   { nageur: "luka", date: "2026-11-14", epreuve: "50 NL",        temps: "37.28",   points: 419,  bassin: 25, lieu: "LANEUVEVILLE-DEVANT-NANCY", niveau: "DEP" },
   { nageur: "luka", date: "2026-11-15", epreuve: "100 NL",       temps: "1:21.67", points: 387,  bassin: 25, lieu: "LANEUVEVILLE-DEVANT-NANCY", niveau: "DEP" },
   { nageur: "luka", date: "2026-11-15", epreuve: "50 Dos",       temps: "41.41",   points: 465,  bassin: 25, lieu: "LANEUVEVILLE-DEVANT-NANCY", niveau: "DEP" },
+  { nageur: "luka", date: "2026-11-15", epreuve: "100 4 Nages",  temps: "1:30.93", points: 402,  bassin: 25, lieu: "LANEUVEVILLE-DEVANT-NANCY", niveau: "DEP" },
 ];
 
 
