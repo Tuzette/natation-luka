@@ -129,17 +129,44 @@ const PERFORMANCES = [
 
 
 // =====================================================================
-//  GRILLE DE QUALIFICATION — DÉPARTEMENTAUX BENJAMINS
+//  GRILLES DE QUALIFICATION — DÉPARTEMENTAUX (Messieurs)
 // =====================================================================
-//  Reprise de l'onglet « Temps qualif Departementaux » (colonne Benjamin).
 //  Une épreuve est qualifiée si le meilleur temps est inférieur ou égal
-//  au temps de la grille. Pour une nouvelle saison, il suffit de
-//  remplacer les temps ci-dessous.
+//  au temps de la grille. Toutes les catégories s'affichent côte à côte.
+//  sexe : "H" ou "F" — chaque nageur ne voit que les grilles de son sexe
+//  (un nageur sans « sexe » dans NAGEURS est considéré comme "H").
+//  Pour une nouvelle saison, remplacer les temps.
 // =====================================================================
 
-const GRILLE_DEPARTEMENTAUX = {
-  nom: "Départementaux benjamins",
-  temps: {
+const GRILLES_DEPARTEMENTAUX = [
+  // --- Messieurs ---
+  { nom: "U10 et -", sexe: "H", temps: {
+    "50 NL":        "41.78",
+    "100 NL":       "1:29.40",
+    "200 NL":       "3:08.77",
+    "50 Dos":       "47.98",
+    "100 Dos":      "1:41.47",
+    "50 Brasse":    "52.93",
+    "100 Brasse":   "1:52.65",
+    "50 Papillon":  "44.25",
+    "100 Papillon": "1:40.27",
+    "100 4 Nages":  "1:40.47",
+    "200 4 Nages":  "3:30.73",
+  } },
+  { nom: "U11", sexe: "H", temps: {
+    "50 NL":        "40.32",
+    "100 NL":       "1:26.38",
+    "200 NL":       "3:02.72",
+    "50 Dos":       "46.25",
+    "100 Dos":      "1:37.88",
+    "50 Brasse":    "51.01",
+    "100 Brasse":   "1:48.80",
+    "50 Papillon":  "42.73",
+    "100 Papillon": "1:36.76",
+    "100 4 Nages":  "1:37.08",
+    "200 4 Nages":  "3:23.91",
+  } },
+  { nom: "U12-U13", sexe: "H", temps: {
     "50 NL":        "38.99",
     "100 NL":       "1:23.60",
     "200 NL":       "2:57.16",
@@ -158,8 +185,48 @@ const GRILLE_DEPARTEMENTAUX = {
     "100 4 Nages":  "1:33.95",
     "200 4 Nages":  "3:17.64",
     "400 4 Nages":  "6:50.81",
-  }
-};
+  } },
+  { nom: "U14-U15", sexe: "H", temps: {
+    "50 NL":        "35.46",
+    "100 NL":       "1:16.29",
+    "200 NL":       "2:42.53",
+    "400 NL":       "5:39.98",
+    "800 NL":       "11:10.67",
+    "1500 NL":      "21:27.28",
+    "50 Dos":       "40.50",
+    "100 Dos":      "1:25.89",
+    "200 Dos":      "3:01.30",
+    "50 Brasse":    "44.61",
+    "100 Brasse":   "1:35.91",
+    "200 Brasse":   "3:21.15",
+    "50 Papillon":  "37.66",
+    "100 Papillon": "1:25.03",
+    "200 Papillon": "3:00.80",
+    "100 4 Nages":  "1:25.73",
+    "200 4 Nages":  "3:01.15",
+    "400 4 Nages":  "6:17.73",
+  } },
+  { nom: "U16 et +", sexe: "H", temps: {
+    "50 NL":        "30.62",
+    "100 NL":       "1:06.23",
+    "200 NL":       "2:22.40",
+    "400 NL":       "4:59.04",
+    "800 NL":       "11:10.67",
+    "1500 NL":      "21:27.28",
+    "50 Dos":       "34.76",
+    "100 Dos":      "1:13.95",
+    "200 Dos":      "2:37.30",
+    "50 Brasse":    "38.22",
+    "100 Brasse":   "1:23.07",
+    "200 Brasse":   "2:55.32",
+    "50 Papillon":  "32.60",
+    "100 Papillon": "1:13.34",
+    "200 Papillon": "2:37.58",
+    "100 4 Nages":  "1:14.42",
+    "200 4 Nages":  "2:38.47",
+    "400 4 Nages":  "5:32.23",
+  } },
+];
 
 // =====================================================================
 //  WEBCONFRONTATION BENJAMIN
